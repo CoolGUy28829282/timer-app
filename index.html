@@ -1,165 +1,219 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Countdown to September 10</title>
-    <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Kirkiversary Countdown</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Chakra+Petch:wght@400;600;700&family=Space+Grotesk:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --void:#05060B;
+    --deep:#0B1020;
+    --cyan:#7CE7FF;
+    --amber:#FFB86B;
+    --slate:#7C88A6;
+    --paper:#E8EEFF;
+  }
 
-        body {
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            min-height: 100vh;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-        }
+  *{margin:0;padding:0;box-sizing:border-box}
 
-        .container {
-            background: white;
-            border-radius: 20px;
-            padding: 40px;
-            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
-            text-align: center;
-            max-width: 500px;
-            width: 90%;
-        }
+  body{
+    min-height:100svh;
+    display:grid;
+    place-items:center;
+    padding:2rem 1.25rem;
+    background:
+      radial-gradient(120% 90% at 50% 42%, #16203D 0%, var(--deep) 45%, var(--void) 100%);
+    color:var(--paper);
+    font-family:'Space Grotesk',system-ui,sans-serif;
+    overflow-x:hidden;
+  }
 
-        h1 {
-            color: #333;
-            margin-bottom: 10px;
-            font-size: 32px;
-        }
+  /* faint horizon grid, sits behind everything */
+  body::after{
+    content:'';
+    position:fixed;
+    inset:0;
+    pointer-events:none;
+    background-image:
+      linear-gradient(rgba(124,231,255,.055) 1px,transparent 1px),
+      linear-gradient(90deg,rgba(124,231,255,.055) 1px,transparent 1px);
+    background-size:64px 64px;
+    mask-image:radial-gradient(70% 55% at 50% 50%,#000 0%,transparent 78%);
+    -webkit-mask-image:radial-gradient(70% 55% at 50% 50%,#000 0%,transparent 78%);
+  }
 
-        .subtitle {
-            color: #666;
-            font-size: 16px;
-            margin-bottom: 30px;
-        }
+  .stage{position:relative;z-index:1;text-align:center;max-width:66rem;width:100%}
 
-        .countdown {
-            display: grid;
-            grid-template-columns: repeat(4, 1fr);
-            gap: 15px;
-            margin: 30px 0;
-        }
+  .title{
+    font-family:'Chakra Petch',sans-serif;
+    font-weight:700;
+    font-size:clamp(1.5rem,4.5vw,2.6rem);
+    letter-spacing:.02em;
+    color:var(--paper);
+  }
 
-        .time-unit {
-            background: #f3f4f6;
-            border-radius: 12px;
-            padding: 20px;
-            border: 2px solid #667eea;
-        }
+  .lede{
+    margin-top:.5rem;
+    font-size:clamp(.85rem,2vw,1rem);
+    color:var(--slate);
+  }
 
-        .time-value {
-            font-size: 48px;
-            font-weight: bold;
-            color: #667eea;
-            font-family: 'Courier New', monospace;
-        }
+  .rule{
+    height:1px;
+    margin:clamp(1.75rem,5vw,3rem) auto;
+    background:linear-gradient(90deg,transparent,rgba(124,231,255,.45),transparent);
+  }
 
-        .time-label {
-            font-size: 14px;
-            color: #666;
-            margin-top: 8px;
-            text-transform: uppercase;
-            letter-spacing: 1px;
-            font-weight: 600;
-        }
+  .readout{
+    display:flex;
+    align-items:flex-start;
+    justify-content:center;
+    gap:clamp(.35rem,1.6vw,1.4rem);
+    font-family:'Chakra Petch',sans-serif;
+    font-variant-numeric:tabular-nums;
+  }
 
-        .finished {
-            font-size: 48px;
-            color: #10b981;
-            font-weight: bold;
-            margin: 30px 0;
-        }
+  .unit{display:flex;flex-direction:column;align-items:center;min-width:0}
 
-        @media (max-width: 480px) {
-            .container {
-                padding: 20px;
-            }
+  .digits{
+    font-weight:600;
+    font-size:clamp(3.1rem,15vw,9rem);
+    line-height:.92;
+    color:var(--cyan);
+    text-shadow:0 0 28px rgba(124,231,255,.42),0 0 78px rgba(124,231,255,.16);
+  }
 
-            h1 {
-                font-size: 24px;
-            }
+  .unit-sec .digits{
+    color:var(--amber);
+    text-shadow:0 0 28px rgba(255,184,107,.4),0 0 78px rgba(255,184,107,.14);
+  }
 
-            .time-value {
-                font-size: 36px;
-            }
+  .label{
+    margin-top:.85rem;
+    font-size:clamp(.6rem,1.6vw,.78rem);
+    letter-spacing:.16em;
+    color:var(--slate);
+  }
 
-            .countdown {
-                gap: 10px;
-            }
+  .colon{
+    font-family:'Chakra Petch',sans-serif;
+    font-weight:400;
+    font-size:clamp(2.2rem,10vw,6rem);
+    line-height:1.1;
+    color:rgba(124,231,255,.28);
+  }
 
-            .time-unit {
-                padding: 15px;
-            }
-        }
-    </style>
+  .target{
+    margin-top:clamp(1.5rem,4vw,2.5rem);
+    font-size:clamp(.8rem,2vw,.95rem);
+    color:var(--slate);
+  }
+
+  .arrived{
+    display:none;
+    font-family:'Chakra Petch',sans-serif;
+    font-weight:700;
+    font-size:clamp(2rem,9vw,5rem);
+    color:var(--amber);
+    text-shadow:0 0 40px rgba(255,184,107,.55);
+  }
+
+  /* the one piece of motion: a tick on each new second */
+  @keyframes tick{from{opacity:.45}to{opacity:1}}
+  .ticking{animation:tick .28s ease-out}
+
+  @media (prefers-reduced-motion:reduce){
+    .ticking{animation:none}
+  }
+</style>
 </head>
 <body>
-    <div class="container">
-        <h1>⏱️ Countdown</h1>
-        <p class="subtitle">Time until September 10th, 2026 (MST)</p>
-        
-        <div id="countdown" class="countdown">
-            <div class="time-unit">
-                <div class="time-value" id="days">00</div>
-                <div class="time-label">Days</div>
-            </div>
-            <div class="time-unit">
-                <div class="time-value" id="hours">00</div>
-                <div class="time-label">Hours</div>
-            </div>
-            <div class="time-unit">
-                <div class="time-value" id="minutes">00</div>
-                <div class="time-label">Minutes</div>
-            </div>
-            <div class="time-unit">
-                <div class="time-value" id="seconds">00</div>
-                <div class="time-label">Seconds</div>
-            </div>
-        </div>
+  <main class="stage">
+    <h1 class="title">Kirkiversary Countdown</h1>
+    <p class="lede">Kirk's anniversary, tracked to the second.</p>
 
-        <div id="finished" class="finished" style="display: none;">
-            🎉 September 10th is here! 🎉
-        </div>
+    <div class="rule"></div>
+
+    <div class="readout" id="readout">
+      <div class="unit">
+        <span class="digits" id="days">000</span>
+        <span class="label">days</span>
+      </div>
+      <span class="colon">:</span>
+      <div class="unit">
+        <span class="digits" id="hours">00</span>
+        <span class="label">hours</span>
+      </div>
+      <span class="colon">:</span>
+      <div class="unit">
+        <span class="digits" id="minutes">00</span>
+        <span class="label">minutes</span>
+      </div>
+      <span class="colon">:</span>
+      <div class="unit unit-sec">
+        <span class="digits" id="seconds">00</span>
+        <span class="label">seconds</span>
+      </div>
     </div>
 
-    <script>
-        function updateCountdown() {
-            // Target: September 10, 2026 at midnight MST
-            // MST is UTC-7
-            const targetDate = new Date('2026-09-10T00:00:00-07:00');
-            const now = new Date();
-            
-            const timeRemaining = targetDate - now;
+    <p class="arrived" id="arrived">It's Kirkiversary.</p>
 
-            if (timeRemaining <= 0) {
-                document.getElementById('countdown').style.display = 'none';
-                document.getElementById('finished').style.display = 'block';
-                return;
-            }
+    <div class="rule"></div>
 
-            const days = Math.floor(timeRemaining / (1000 * 60 * 60 * 24));
-            const hours = Math.floor((timeRemaining % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
-            const minutes = Math.floor((timeRemaining % (1000 * 60 * 60)) / (1000 * 60));
-            const seconds = Math.floor((timeRemaining % (1000 * 60)) / 1000);
+    <p class="target">Counting down to midnight on 10 September 2026, Mountain time.</p>
+  </main>
 
-            document.getElementById('days').textContent = String(days).padStart(2, '0');
-            document.getElementById('hours').textContent = String(hours).padStart(2, '0');
-            document.getElementById('minutes').textContent = String(minutes).padStart(2, '0');
-            document.getElementById('seconds').textContent = String(seconds).padStart(2, '0');
-        }
+<script>
+  const TARGET = new Date('2026-09-10T00:00:00-07:00');
 
-        // Update immediately and then every second
-        updateCountdown();
-        setInterval(updateCountdown, 1000);
-    </script>
+  const el = {
+    readout: document.getElementById('readout'),
+    arrived: document.getElementById('arrived'),
+    days: document.getElementById('days'),
+    hours: document.getElementById('hours'),
+    minutes: document.getElementById('minutes'),
+    seconds: document.getElementById('seconds')
+  };
+
+  let lastSecond = null;
+
+  function pad(n, width) {
+    return String(n).padStart(width, '0');
+  }
+
+  function tick() {
+    const remaining = TARGET - new Date();
+
+    if (remaining <= 0) {
+      el.readout.style.display = 'none';
+      el.arrived.style.display = 'block';
+      return;
+    }
+
+    const totalSeconds = Math.floor(remaining / 1000);
+    const d = Math.floor(totalSeconds / 86400);
+    const h = Math.floor(totalSeconds % 86400 / 3600);
+    const m = Math.floor(totalSeconds % 3600 / 60);
+    const s = totalSeconds % 60;
+
+    el.days.textContent = pad(d, 3);
+    el.hours.textContent = pad(h, 2);
+    el.minutes.textContent = pad(m, 2);
+    el.seconds.textContent = pad(s, 2);
+
+    if (s !== lastSecond) {
+      lastSecond = s;
+      el.seconds.classList.remove('ticking');
+      void el.seconds.offsetWidth;
+      el.seconds.classList.add('ticking');
+    }
+  }
+
+  tick();
+  setInterval(tick, 250);
+</script>
 </body>
 </html>
