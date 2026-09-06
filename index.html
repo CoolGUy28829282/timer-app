@@ -133,23 +133,12 @@
 
     <script>
         function updateCountdown() {
-            // Create target date: September 10, 2026 at midnight MST
+            // Target: September 10, 2026 at midnight MST
             // MST is UTC-7
-            const targetDate = new Date('2026-09-10T00:00:00').getTime();
-            
-            // Adjust for MST timezone (UTC-7)
-            // Get current time in UTC
+            const targetDate = new Date('2026-09-10T00:00:00-07:00');
             const now = new Date();
-            const utcTime = now.getTime();
             
-            // MST is UTC-7, so we need to get the current time in MST
-            const mstTime = new Date(utcTime - (now.getTimezoneOffset() * 60000));
-            
-            // Get today's date at midnight MST
-            const currentMST = new Date(mstTime.getFullYear(), mstTime.getMonth(), mstTime.getDate());
-            const targetDateMST = new Date(2026, 8, 10); // September is month 8 (0-indexed)
-            
-            const timeRemaining = targetDateMST.getTime() - currentMST.getTime();
+            const timeRemaining = targetDate - now;
 
             if (timeRemaining <= 0) {
                 document.getElementById('countdown').style.display = 'none';
