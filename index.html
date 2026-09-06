@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Timer</title>
+    <title>Countdown to September 10</title>
     <style>
         * {
             margin: 0;
@@ -26,91 +26,57 @@
             padding: 40px;
             box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
             text-align: center;
-            max-width: 400px;
+            max-width: 500px;
             width: 90%;
         }
 
         h1 {
             color: #333;
-            margin-bottom: 30px;
+            margin-bottom: 10px;
             font-size: 32px;
         }
 
-        .timer-display {
-            font-size: 72px;
+        .subtitle {
+            color: #666;
+            font-size: 16px;
+            margin-bottom: 30px;
+        }
+
+        .countdown {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 15px;
+            margin: 30px 0;
+        }
+
+        .time-unit {
+            background: #f3f4f6;
+            border-radius: 12px;
+            padding: 20px;
+            border: 2px solid #667eea;
+        }
+
+        .time-value {
+            font-size: 48px;
             font-weight: bold;
             color: #667eea;
-            margin: 30px 0;
             font-family: 'Courier New', monospace;
-            letter-spacing: 2px;
         }
 
-        .input-group {
-            display: flex;
-            gap: 10px;
-            margin-bottom: 20px;
-            justify-content: center;
+        .time-label {
+            font-size: 14px;
+            color: #666;
+            margin-top: 8px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            font-weight: 600;
         }
 
-        input {
-            width: 80px;
-            padding: 10px;
-            font-size: 18px;
-            border: 2px solid #ddd;
-            border-radius: 8px;
-            text-align: center;
-        }
-
-        input:focus {
-            outline: none;
-            border-color: #667eea;
-        }
-
-        .button-group {
-            display: flex;
-            gap: 10px;
-            justify-content: center;
-            flex-wrap: wrap;
-        }
-
-        button {
-            padding: 12px 24px;
-            font-size: 16px;
-            border: none;
-            border-radius: 8px;
-            cursor: pointer;
+        .finished {
+            font-size: 48px;
+            color: #10b981;
             font-weight: bold;
-            transition: all 0.3s;
-        }
-
-        .btn-start {
-            background: #667eea;
-            color: white;
-        }
-
-        .btn-start:hover {
-            background: #5568d3;
-            transform: scale(1.05);
-        }
-
-        .btn-pause {
-            background: #f59e0b;
-            color: white;
-        }
-
-        .btn-pause:hover {
-            background: #d97706;
-            transform: scale(1.05);
-        }
-
-        .btn-reset {
-            background: #ef4444;
-            color: white;
-        }
-
-        .btn-reset:hover {
-            background: #dc2626;
-            transform: scale(1.05);
+            margin: 30px 0;
         }
 
         @media (max-width: 480px) {
@@ -118,124 +84,93 @@
                 padding: 20px;
             }
 
-            .timer-display {
-                font-size: 48px;
-            }
-
             h1 {
                 font-size: 24px;
+            }
+
+            .time-value {
+                font-size: 36px;
+            }
+
+            .countdown {
+                gap: 10px;
+            }
+
+            .time-unit {
+                padding: 15px;
             }
         }
     </style>
 </head>
 <body>
     <div class="container">
-        <h1>⏱️ Timer</h1>
+        <h1>⏱️ Countdown</h1>
+        <p class="subtitle">Time until September 10th, 2026 (MST)</p>
         
-        <div class="input-group">
-            <input type="number" id="minutes" placeholder="MM" min="0" max="59" value="1">
-            <span style="font-size: 24px; color: #667eea;">:</span>
-            <input type="number" id="seconds" placeholder="SS" min="0" max="59" value="0">
+        <div id="countdown" class="countdown">
+            <div class="time-unit">
+                <div class="time-value" id="days">00</div>
+                <div class="time-label">Days</div>
+            </div>
+            <div class="time-unit">
+                <div class="time-value" id="hours">00</div>
+                <div class="time-label">Hours</div>
+            </div>
+            <div class="time-unit">
+                <div class="time-value" id="minutes">00</div>
+                <div class="time-label">Minutes</div>
+            </div>
+            <div class="time-unit">
+                <div class="time-value" id="seconds">00</div>
+                <div class="time-label">Seconds</div>
+            </div>
         </div>
 
-        <div class="timer-display" id="display">01:00</div>
-
-        <div class="button-group">
-            <button class="btn-start" onclick="startTimer()">Start</button>
-            <button class="btn-pause" onclick="pauseTimer()">Pause</button>
-            <button class="btn-reset" onclick="resetTimer()">Reset</button>
+        <div id="finished" class="finished" style="display: none;">
+            🎉 September 10th is here! 🎉
         </div>
     </div>
 
     <script>
-        let timeLeft = 60;
-        let isRunning = false;
-        let intervalId = null;
-
-        const display = document.getElementById('display');
-        const minutesInput = document.getElementById('minutes');
-        const secondsInput = document.getElementById('seconds');
-
-        function updateDisplay() {
-            const mins = Math.floor(timeLeft / 60);
-            const secs = timeLeft % 60;
-            display.textContent = 
-                String(mins).padStart(2, '0') + ':' + 
-                String(secs).padStart(2, '0');
-        }
-
-        function startTimer() {
-            if (isRunning) return;
+        function updateCountdown() {
+            // Create target date: September 10, 2026 at midnight MST
+            // MST is UTC-7
+            const targetDate = new Date('2026-09-10T00:00:00').getTime();
             
-            if (!isRunning && timeLeft === 0) {
-                timeLeft = parseInt(minutesInput.value || 0) * 60 + 
-                          parseInt(secondsInput.value || 0);
-            }
+            // Adjust for MST timezone (UTC-7)
+            // Get current time in UTC
+            const now = new Date();
+            const utcTime = now.getTime();
             
-            if (timeLeft <= 0) {
-                timeLeft = parseInt(minutesInput.value || 0) * 60 + 
-                          parseInt(secondsInput.value || 0);
+            // MST is UTC-7, so we need to get the current time in MST
+            const mstTime = new Date(utcTime - (now.getTimezoneOffset() * 60000));
+            
+            // Get today's date at midnight MST
+            const currentMST = new Date(mstTime.getFullYear(), mstTime.getMonth(), mstTime.getDate());
+            const targetDateMST = new Date(2026, 8, 10); // September is month 8 (0-indexed)
+            
+            const timeRemaining = targetDateMST.getTime() - currentMST.getTime();
+
+            if (timeRemaining <= 0) {
+                document.getElementById('countdown').style.display = 'none';
+                document.getElementById('finished').style.display = 'block';
+                return;
             }
 
-            isRunning = true;
-            minutesInput.disabled = true;
-            secondsInput.disabled = true;
+            const days = Math.floor(timeRemaining / (1000 * 60 * 60 * 24));
+            const hours = Math.floor((timeRemaining % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+            const minutes = Math.floor((timeRemaining % (1000 * 60 * 60)) / (1000 * 60));
+            const seconds = Math.floor((timeRemaining % (1000 * 60)) / 1000);
 
-            intervalId = setInterval(() => {
-                timeLeft--;
-                updateDisplay();
-
-                if (timeLeft === 0) {
-                    clearInterval(intervalId);
-                    isRunning = false;
-                    playSound();
-                    minutesInput.disabled = false;
-                    secondsInput.disabled = false;
-                }
-            }, 1000);
+            document.getElementById('days').textContent = String(days).padStart(2, '0');
+            document.getElementById('hours').textContent = String(hours).padStart(2, '0');
+            document.getElementById('minutes').textContent = String(minutes).padStart(2, '0');
+            document.getElementById('seconds').textContent = String(seconds).padStart(2, '0');
         }
 
-        function pauseTimer() {
-            isRunning = false;
-            clearInterval(intervalId);
-            minutesInput.disabled = false;
-            secondsInput.disabled = false;
-        }
-
-        function resetTimer() {
-            isRunning = false;
-            clearInterval(intervalId);
-            timeLeft = parseInt(minutesInput.value || 0) * 60 + 
-                      parseInt(secondsInput.value || 0);
-            updateDisplay();
-            minutesInput.disabled = false;
-            secondsInput.disabled = false;
-        }
-
-        function playSound() {
-            const audioContext = new (window.AudioContext || window.webkitAudioContext)();
-            const oscillator = audioContext.createOscillator();
-            const gain = audioContext.createGain();
-
-            oscillator.connect(gain);
-            gain.connect(audioContext.destination);
-
-            oscillator.frequency.value = 800;
-            oscillator.type = 'sine';
-
-            gain.gain.setValueAtTime(0.3, audioContext.currentTime);
-            gain.gain.exponentialRampToValueAtTime(0.01, audioContext.currentTime + 0.5);
-
-            oscillator.start(audioContext.currentTime);
-            oscillator.stop(audioContext.currentTime + 0.5);
-        }
-
-        // Initialize display
-        updateDisplay();
-
-        // Update display when inputs change
-        minutesInput.addEventListener('change', updateDisplay);
-        secondsInput.addEventListener('change', updateDisplay);
+        // Update immediately and then every second
+        updateCountdown();
+        setInterval(updateCountdown, 1000);
     </script>
 </body>
 </html>
