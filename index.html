@@ -3,6 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="theme-color" content="#05060B">
 <title>Kirkiversary Countdown</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -12,105 +13,216 @@
     --void:#05060B;
     --deep:#0B1020;
     --cyan:#7CE7FF;
+    --cyan-rgb:124,231,255;
     --amber:#FFB86B;
+    --amber-rgb:255,184,107;
     --slate:#7C88A6;
     --paper:#E8EEFF;
   }
 
   *{margin:0;padding:0;box-sizing:border-box}
+  html,body{height:100%}
 
   body{
+    min-height:100vh;
     min-height:100svh;
     display:grid;
     place-items:center;
     padding:2rem 1.25rem;
-    background:
-      radial-gradient(120% 90% at 50% 42%, #16203D 0%, var(--deep) 45%, var(--void) 100%);
+    background:radial-gradient(120% 90% at 50% 40%,#141C36 0%,var(--deep) 45%,var(--void) 100%);
     color:var(--paper);
     font-family:'Space Grotesk',system-ui,sans-serif;
     overflow-x:hidden;
   }
 
-  /* faint horizon grid, sits behind everything */
-  body::after{
-    content:'';
-    position:fixed;
-    inset:0;
-    pointer-events:none;
+  /* ---------- background layers ---------- */
+  #stars{position:fixed;inset:0;z-index:0;pointer-events:none}
+
+  .floor{
+    position:fixed;left:-40%;width:180%;top:58%;height:75vh;z-index:1;pointer-events:none;
     background-image:
-      linear-gradient(rgba(124,231,255,.055) 1px,transparent 1px),
-      linear-gradient(90deg,rgba(124,231,255,.055) 1px,transparent 1px);
-    background-size:64px 64px;
-    mask-image:radial-gradient(70% 55% at 50% 50%,#000 0%,transparent 78%);
-    -webkit-mask-image:radial-gradient(70% 55% at 50% 50%,#000 0%,transparent 78%);
+      repeating-linear-gradient(90deg,rgba(var(--cyan-rgb),.22) 0 1px,transparent 1px 90px),
+      repeating-linear-gradient(0deg,rgba(var(--cyan-rgb),.22) 0 1px,transparent 1px 90px);
+    transform-origin:top center;
+    transform:perspective(520px) rotateX(64deg);
+    -webkit-mask-image:linear-gradient(to bottom,transparent 0%,#000 25%,#000 70%,transparent 100%);
+    mask-image:linear-gradient(to bottom,transparent 0%,#000 25%,#000 70%,transparent 100%);
+    animation:floor 5s linear infinite;
+  }
+  @keyframes floor{to{background-position:0 90px,0 90px}}
+
+  .horizon{
+    position:fixed;left:0;right:0;top:58%;height:2px;z-index:1;pointer-events:none;
+    background:linear-gradient(90deg,transparent,rgba(var(--cyan-rgb),.7) 30%,rgba(var(--cyan-rgb),.9) 50%,rgba(var(--cyan-rgb),.7) 70%,transparent);
+    box-shadow:0 0 24px 4px rgba(var(--cyan-rgb),.35);
   }
 
-  .stage{position:relative;z-index:1;text-align:center;max-width:66rem;width:100%}
+  .scan{
+    position:fixed;left:0;right:0;top:0;height:160px;z-index:2;pointer-events:none;
+    background:linear-gradient(to bottom,transparent,rgba(var(--cyan-rgb),.07) 50%,transparent);
+    transform:translateY(-160px);
+    animation:sweep 8s linear infinite;
+  }
+  @keyframes sweep{to{transform:translateY(100vh)}}
+
+  .lines{
+    position:fixed;inset:0;z-index:3;pointer-events:none;opacity:.35;
+    background:repeating-linear-gradient(0deg,rgba(0,0,0,.35) 0 1px,transparent 1px 3px);
+  }
+
+  .noise{
+    position:fixed;inset:0;z-index:3;pointer-events:none;opacity:.07;
+    background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.85' numOctaves='2' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+  }
+
+  /* ---------- content ---------- */
+  .stage{
+    position:relative;z-index:10;text-align:center;width:100%;max-width:72rem;
+    transition:transform .15s ease-out;
+  }
 
   .title{
+    position:relative;
     font-family:'Chakra Petch',sans-serif;
     font-weight:700;
-    font-size:clamp(1.5rem,4.5vw,2.6rem);
-    letter-spacing:.02em;
+    font-size:clamp(1.6rem,5vw,2.9rem);
+    letter-spacing:.03em;
     color:var(--paper);
+    animation:reveal .9s ease-out both;
+  }
+  .title::before,.title::after{
+    content:attr(data-text);
+    position:absolute;left:0;top:0;width:100%;
+    opacity:0;pointer-events:none;
+  }
+  .title::before{color:#FF5C8A;animation:glitchA 7s infinite}
+  .title::after{color:var(--cyan);animation:glitchB 7s infinite}
+  @keyframes glitchA{
+    0%,89%,100%{opacity:0}
+    90%{opacity:.85;clip-path:inset(12% 0 58% 0);transform:translate(-3px,0)}
+    92%{opacity:.85;clip-path:inset(55% 0 20% 0);transform:translate(3px,0)}
+    94%{opacity:.85;clip-path:inset(30% 0 45% 0);transform:translate(-2px,0)}
+    96%{opacity:0}
+  }
+  @keyframes glitchB{
+    0%,89%,100%{opacity:0}
+    90%{opacity:.85;clip-path:inset(60% 0 10% 0);transform:translate(3px,0)}
+    92%{opacity:.85;clip-path:inset(5% 0 70% 0);transform:translate(-3px,0)}
+    94%{opacity:.85;clip-path:inset(40% 0 30% 0);transform:translate(2px,0)}
+    96%{opacity:0}
   }
 
   .lede{
     margin-top:.5rem;
     font-size:clamp(.85rem,2vw,1rem);
     color:var(--slate);
+    animation:reveal .9s ease-out .15s both;
   }
 
   .rule{
     height:1px;
-    margin:clamp(1.75rem,5vw,3rem) auto;
-    background:linear-gradient(90deg,transparent,rgba(124,231,255,.45),transparent);
+    margin:clamp(1.5rem,4vw,2.5rem) auto;
+    background:linear-gradient(90deg,transparent,rgba(var(--cyan-rgb),.45),transparent);
   }
 
+  .panel{
+    position:relative;
+    display:inline-block;
+    padding:clamp(1.5rem,4vw,2.75rem) clamp(1rem,4vw,3rem);
+    animation:reveal .9s ease-out .3s both;
+  }
+  .panel::before{
+    content:'';position:absolute;inset:0;z-index:-2;
+    background:linear-gradient(180deg,rgba(255,255,255,.035),rgba(255,255,255,0));
+    border:1px solid rgba(var(--cyan-rgb),.1);
+  }
+
+  .reticle{
+    position:absolute;left:50%;top:50%;z-index:-1;
+    width:min(70vw,560px);aspect-ratio:1;
+    transform:translate(-50%,-50%);
+    opacity:.45;pointer-events:none;
+  }
+  .reticle svg{width:100%;height:100%;display:block}
+  .ring{fill:none;transform-origin:100px 100px}
+  .ring-a{stroke:rgba(var(--cyan-rgb),.8);stroke-width:1;stroke-dasharray:6 10;animation:spin 28s linear infinite}
+  .ring-b{stroke:rgba(var(--amber-rgb),.75);stroke-width:2;stroke-dasharray:40 120;animation:spin 18s linear infinite reverse}
+  .ring-c{stroke:rgba(var(--cyan-rgb),.6);stroke-width:.75;stroke-dasharray:2 6;animation:spin 40s linear infinite}
+  @keyframes spin{to{transform:rotate(360deg)}}
+
+  .bracket{
+    position:absolute;width:26px;height:26px;
+    border:2px solid rgba(var(--cyan-rgb),.75);
+    animation:breathe 3.2s ease-in-out infinite;
+    transition:opacity 1.2s ease,transform 1.2s ease;
+  }
+  .bracket.tl{top:0;left:0;border-right:0;border-bottom:0;--bx:-4px;--by:-4px}
+  .bracket.tr{top:0;right:0;border-left:0;border-bottom:0;--bx:4px;--by:-4px}
+  .bracket.bl{bottom:0;left:0;border-right:0;border-top:0;--bx:-4px;--by:4px}
+  .bracket.br{bottom:0;right:0;border-left:0;border-top:0;--bx:4px;--by:4px}
+  @keyframes breathe{0%,100%{transform:translate(0,0)}50%{transform:translate(var(--bx),var(--by))}}
+
   .readout{
-    display:flex;
-    align-items:flex-start;
-    justify-content:center;
-    gap:clamp(.35rem,1.6vw,1.4rem);
+    position:relative;z-index:1;
+    display:flex;align-items:flex-start;justify-content:center;
+    gap:clamp(.25rem,1.4vw,1.4rem);
     font-family:'Chakra Petch',sans-serif;
     font-variant-numeric:tabular-nums;
   }
-
   .unit{display:flex;flex-direction:column;align-items:center;min-width:0}
-
   .digits{
+    display:inline-block;min-width:2.05ch;
     font-weight:600;
-    font-size:clamp(3.1rem,15vw,9rem);
+    font-size:clamp(2.4rem,12.5vw,9rem);
     line-height:.92;
     color:var(--cyan);
-    text-shadow:0 0 28px rgba(124,231,255,.42),0 0 78px rgba(124,231,255,.16);
+    text-shadow:0 0 28px rgba(var(--cyan-rgb),.42),0 0 78px rgba(var(--cyan-rgb),.16);
   }
-
   .unit-sec .digits{
     color:var(--amber);
-    text-shadow:0 0 28px rgba(255,184,107,.4),0 0 78px rgba(255,184,107,.14);
+    text-shadow:0 0 28px rgba(var(--amber-rgb),.4),0 0 78px rgba(var(--amber-rgb),.14);
   }
-
   .label{
     margin-top:.85rem;
     font-size:clamp(.6rem,1.6vw,.78rem);
     letter-spacing:.16em;
     color:var(--slate);
   }
-
   .colon{
     font-family:'Chakra Petch',sans-serif;
     font-weight:400;
-    font-size:clamp(2.2rem,10vw,6rem);
+    font-size:clamp(1.6rem,8vw,6rem);
     line-height:1.1;
-    color:rgba(124,231,255,.28);
+    color:rgba(var(--cyan-rgb),.28);
   }
 
-  .target{
-    margin-top:clamp(1.5rem,4vw,2.5rem);
-    font-size:clamp(.8rem,2vw,.95rem);
-    color:var(--slate);
+  @keyframes tick{from{opacity:.4;filter:brightness(1.8)}to{opacity:1;filter:brightness(1)}}
+  .ticking{animation:tick .3s ease-out}
+
+  .orbit{
+    max-width:34rem;margin:clamp(1.5rem,4vw,2.5rem) auto 0;
+    animation:reveal .9s ease-out .55s both;
   }
+  .orbit-track{position:relative;height:4px;border-radius:2px;background:rgba(var(--cyan-rgb),.12)}
+  .orbit-fill{
+    position:relative;height:100%;width:0;border-radius:2px;
+    background:linear-gradient(90deg,rgba(var(--cyan-rgb),.35),var(--cyan));
+    box-shadow:0 0 12px rgba(var(--cyan-rgb),.8);
+    transition:width 1s linear;
+  }
+  .orbit-fill::after{
+    content:'';position:absolute;right:-4px;top:50%;width:8px;height:8px;border-radius:50%;
+    background:#fff;transform:translateY(-50%);
+    box-shadow:0 0 14px 4px rgba(var(--cyan-rgb),.9);
+  }
+  .orbit-label{margin-top:.7rem;font-size:clamp(.75rem,1.8vw,.9rem);color:var(--slate)}
+  .orbit-label b{font-family:'Chakra Petch',sans-serif;font-weight:500;color:var(--cyan);font-variant-numeric:tabular-nums}
+
+  .telemetry{
+    margin-top:1.2rem;font-size:.8rem;letter-spacing:.06em;color:var(--slate);
+    animation:reveal .9s ease-out .7s both;
+  }
+  .telemetry span{font-family:'Chakra Petch',sans-serif;color:var(--paper);font-variant-numeric:tabular-nums}
 
   .arrived{
     display:none;
@@ -118,102 +230,260 @@
     font-weight:700;
     font-size:clamp(2rem,9vw,5rem);
     color:var(--amber);
-    text-shadow:0 0 40px rgba(255,184,107,.55);
+    text-shadow:0 0 40px rgba(var(--amber-rgb),.65),0 0 120px rgba(var(--amber-rgb),.3);
+    animation:bloom 1.4s ease-out both;
   }
+  @keyframes bloom{from{opacity:0;transform:scale(.8);filter:blur(14px)}to{opacity:1;transform:none;filter:none}}
 
-  /* the one piece of motion: a tick on each new second */
-  @keyframes tick{from{opacity:.45}to{opacity:1}}
-  .ticking{animation:tick .28s ease-out}
+  .is-arrived .bracket{opacity:0;transform:scale(2.4);animation:none}
+  .is-arrived .reticle{opacity:.85}
+
+  @keyframes reveal{from{opacity:0;transform:translateY(12px);filter:blur(8px)}to{opacity:1;transform:none;filter:none}}
 
   @media (prefers-reduced-motion:reduce){
-    .ticking{animation:none}
+    *,*::before,*::after{animation:none!important;transition:none!important}
+    .scan{display:none}
   }
 </style>
 </head>
 <body>
-  <main class="stage">
-    <h1 class="title">Kirkiversary Countdown</h1>
+  <canvas id="stars" aria-hidden="true"></canvas>
+  <div class="floor" aria-hidden="true"></div>
+  <div class="horizon" aria-hidden="true"></div>
+  <div class="scan" aria-hidden="true"></div>
+  <div class="lines" aria-hidden="true"></div>
+  <div class="noise" aria-hidden="true"></div>
+
+  <main class="stage" id="stage">
+    <h1 class="title" data-text="Kirkiversary Countdown">Kirkiversary Countdown</h1>
     <p class="lede">Kirk's anniversary, tracked to the second.</p>
 
     <div class="rule"></div>
 
-    <div class="readout" id="readout">
-      <div class="unit">
-        <span class="digits" id="days">000</span>
-        <span class="label">days</span>
+    <section class="panel">
+      <div class="reticle" aria-hidden="true">
+        <svg viewBox="0 0 200 200">
+          <circle class="ring ring-a" cx="100" cy="100" r="96"/>
+          <circle class="ring ring-b" cx="100" cy="100" r="78"/>
+          <circle class="ring ring-c" cx="100" cy="100" r="60"/>
+        </svg>
       </div>
-      <span class="colon">:</span>
-      <div class="unit">
-        <span class="digits" id="hours">00</span>
-        <span class="label">hours</span>
-      </div>
-      <span class="colon">:</span>
-      <div class="unit">
-        <span class="digits" id="minutes">00</span>
-        <span class="label">minutes</span>
-      </div>
-      <span class="colon">:</span>
-      <div class="unit unit-sec">
-        <span class="digits" id="seconds">00</span>
-        <span class="label">seconds</span>
-      </div>
-    </div>
+      <span class="bracket tl" aria-hidden="true"></span>
+      <span class="bracket tr" aria-hidden="true"></span>
+      <span class="bracket bl" aria-hidden="true"></span>
+      <span class="bracket br" aria-hidden="true"></span>
 
-    <p class="arrived" id="arrived">It's Kirkiversary.</p>
+      <div class="readout" id="readout">
+        <div class="unit">
+          <span class="digits" id="days">00</span>
+          <span class="label">days</span>
+        </div>
+        <span class="colon">:</span>
+        <div class="unit">
+          <span class="digits" id="hours">00</span>
+          <span class="label">hours</span>
+        </div>
+        <span class="colon">:</span>
+        <div class="unit">
+          <span class="digits" id="minutes">00</span>
+          <span class="label">minutes</span>
+        </div>
+        <span class="colon">:</span>
+        <div class="unit unit-sec">
+          <span class="digits" id="seconds">00</span>
+          <span class="label">seconds</span>
+        </div>
+      </div>
+
+      <p class="arrived" id="arrived">It's Kirkiversary.</p>
+    </section>
+
+    <div class="orbit">
+      <div class="orbit-track"><div class="orbit-fill" id="orbitFill"></div></div>
+      <p class="orbit-label"><b id="orbitPct">0.0</b>% of the way to Kirkiversary</p>
+    </div>
 
     <div class="rule"></div>
 
-    <p class="target">Counting down to midnight on 10 September 2026, Mountain time.</p>
+    <p class="telemetry">Local time <span id="clock">--:--:--</span></p>
   </main>
 
 <script>
+(() => {
   const TARGET = new Date('2026-09-10T00:00:00-07:00');
+  const PREV   = new Date('2025-09-10T00:00:00-07:00');
+  const reduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
 
+  const $ = id => document.getElementById(id);
   const el = {
-    readout: document.getElementById('readout'),
-    arrived: document.getElementById('arrived'),
-    days: document.getElementById('days'),
-    hours: document.getElementById('hours'),
-    minutes: document.getElementById('minutes'),
-    seconds: document.getElementById('seconds')
+    stage: $('stage'), readout: $('readout'), arrived: $('arrived'),
+    days: $('days'), hours: $('hours'), minutes: $('minutes'), seconds: $('seconds'),
+    orbitFill: $('orbitFill'), orbitPct: $('orbitPct'), clock: $('clock')
   };
+  const pad = (n, w) => String(n).padStart(w, '0');
 
-  let lastSecond = null;
+  let warp = false;
+  let arrived = false;
+  const last = { days: '', hours: '', minutes: '', seconds: '' };
+  const timers = new Map();
 
-  function pad(n, width) {
-    return String(n).padStart(width, '0');
+  /* ---------- digits ---------- */
+  function flash(node){
+    node.classList.remove('ticking');
+    void node.offsetWidth;
+    node.classList.add('ticking');
   }
 
-  function tick() {
-    const remaining = TARGET - new Date();
+  function scramble(node, text){
+    clearTimeout(timers.get(node));
+    if (reduced){ node.textContent = text; return; }
+    let i = 0;
+    const step = () => {
+      if (i++ < 4){
+        node.textContent = Array.from(text, () => Math.random() * 10 | 0).join('');
+        timers.set(node, setTimeout(step, 40));
+      } else {
+        node.textContent = text;
+        flash(node);
+      }
+    };
+    step();
+  }
 
-    if (remaining <= 0) {
-      el.readout.style.display = 'none';
-      el.arrived.style.display = 'block';
-      return;
-    }
+  function tick(){
+    const now = new Date();
+    el.clock.textContent = now.toLocaleTimeString([], { hour12: false });
 
-    const totalSeconds = Math.floor(remaining / 1000);
-    const d = Math.floor(totalSeconds / 86400);
-    const h = Math.floor(totalSeconds % 86400 / 3600);
-    const m = Math.floor(totalSeconds % 3600 / 60);
-    const s = totalSeconds % 60;
+    const frac = Math.min(1, Math.max(0, (now - PREV) / (TARGET - PREV)));
+    el.orbitFill.style.width = (frac * 100).toFixed(2) + '%';
+    el.orbitPct.textContent = (frac * 100).toFixed(1);
 
-    el.days.textContent = pad(d, 3);
-    el.hours.textContent = pad(h, 2);
-    el.minutes.textContent = pad(m, 2);
-    el.seconds.textContent = pad(s, 2);
+    const remaining = TARGET - now;
+    if (remaining <= 0){ if (!arrived) arrive(); return; }
 
-    if (s !== lastSecond) {
-      lastSecond = s;
-      el.seconds.classList.remove('ticking');
-      void el.seconds.offsetWidth;
-      el.seconds.classList.add('ticking');
+    const total = Math.floor(remaining / 1000);
+    const next = {
+      days:    pad(Math.floor(total / 86400), 2),
+      hours:   pad(Math.floor(total % 86400 / 3600), 2),
+      minutes: pad(Math.floor(total % 3600 / 60), 2),
+      seconds: pad(total % 60, 2)
+    };
+    for (const k in next){
+      if (next[k] !== last[k]){ last[k] = next[k]; scramble(el[k], next[k]); }
     }
   }
 
-  tick();
-  setInterval(tick, 250);
+  function arrive(){
+    arrived = true;
+    warp = true;
+    el.readout.style.display = 'none';
+    el.arrived.style.display = 'block';
+    document.body.classList.add('is-arrived');
+  }
+
+  function boot(){
+    const start = () => { tick(); setInterval(tick, 250); };
+    if (reduced){ start(); return; }
+    const nodes = [el.days, el.hours, el.minutes, el.seconds];
+    const t0 = performance.now();
+    const frame = () => {
+      nodes.forEach(n => n.textContent = pad(Math.random() * 100 | 0, 2));
+      if (performance.now() - t0 < 1100) setTimeout(frame, 60);
+      else start();
+    };
+    frame();
+  }
+
+  /* ---------- starfield ---------- */
+  const canvas = $('stars');
+  const ctx = canvas.getContext('2d');
+  let W = 0, H = 0, stars = [];
+  const mouse = { x: 0, y: 0 };
+
+  function resize(){
+    const dpr = Math.min(2, window.devicePixelRatio || 1);
+    W = window.innerWidth; H = window.innerHeight;
+    canvas.width = W * dpr; canvas.height = H * dpr;
+    canvas.style.width = W + 'px'; canvas.style.height = H + 'px';
+    ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+    const n = Math.min(220, Math.max(80, Math.floor(W * H / 9000)));
+    stars = Array.from({ length: n }, () => ({
+      x: Math.random() * W, y: Math.random() * H,
+      z: .3 + Math.random() * .7,
+      r: .6 + Math.random() * 1.4,
+      vx: (Math.random() - .5) * .12, vy: (Math.random() - .5) * .12,
+      tw: Math.random() * Math.PI * 2, ts: .01 + Math.random() * .025
+    }));
+  }
+
+  function draw(){
+    ctx.clearRect(0, 0, W, H);
+    const px = mouse.x * 18, py = mouse.y * 18;
+
+    if (!warp){
+      ctx.lineWidth = 1;
+      for (let i = 0; i < stars.length; i++){
+        const a = stars[i];
+        for (let j = i + 1; j < stars.length; j++){
+          const b = stars[j];
+          const dx = a.x - b.x, dy = a.y - b.y, d2 = dx * dx + dy * dy;
+          if (d2 < 14400){
+            ctx.strokeStyle = `rgba(124,231,255,${(1 - Math.sqrt(d2) / 120) * .16})`;
+            ctx.beginPath();
+            ctx.moveTo(a.x + px * a.z, a.y + py * a.z);
+            ctx.lineTo(b.x + px * b.z, b.y + py * b.z);
+            ctx.stroke();
+          }
+        }
+      }
+    }
+
+    const cx = W / 2, cy = H / 2;
+    for (const s of stars){
+      s.tw += s.ts;
+      const alpha = (.35 + .65 * (.5 + .5 * Math.sin(s.tw))) * s.z;
+      if (!warp){
+        ctx.fillStyle = `rgba(200,240,255,${alpha})`;
+        ctx.beginPath();
+        ctx.arc(s.x + px * s.z, s.y + py * s.z, s.r * s.z, 0, Math.PI * 2);
+        ctx.fill();
+        s.x += s.vx * s.z; s.y += s.vy * s.z;
+        if (s.x < -10) s.x = W + 10; else if (s.x > W + 10) s.x = -10;
+        if (s.y < -10) s.y = H + 10; else if (s.y > H + 10) s.y = -10;
+      } else {
+        const dx = s.x - cx, dy = s.y - cy, d = Math.hypot(dx, dy) || 1;
+        const sp = (1 + d * .02) * s.z * 4;
+        const nx = s.x + dx / d * sp, ny = s.y + dy / d * sp;
+        ctx.strokeStyle = `rgba(255,184,107,${.7 * s.z})`;
+        ctx.lineWidth = s.r * s.z;
+        ctx.beginPath(); ctx.moveTo(s.x, s.y); ctx.lineTo(nx, ny); ctx.stroke();
+        s.x = nx; s.y = ny;
+        if (s.x < -30 || s.x > W + 30 || s.y < -30 || s.y > H + 30){
+          s.x = cx + (Math.random() - .5) * 60;
+          s.y = cy + (Math.random() - .5) * 60;
+        }
+      }
+    }
+  }
+
+  function loop(){ draw(); requestAnimationFrame(loop); }
+
+  window.addEventListener('resize', resize);
+  resize();
+  if (reduced) draw(); else loop();
+
+  /* ---------- mouse parallax ---------- */
+  if (!reduced){
+    window.addEventListener('pointermove', e => {
+      if (e.pointerType !== 'mouse') return;
+      mouse.x = (e.clientX / W - .5) * 2;
+      mouse.y = (e.clientY / H - .5) * 2;
+      el.stage.style.transform = `translate(${(-mouse.x * 6).toFixed(1)}px, ${(-mouse.y * 6).toFixed(1)}px)`;
+    });
+  }
+
+  boot();
+})();
 </script>
 </body>
 </html>
